@@ -1,9 +1,35 @@
 # -*- coding: utf -8 -*-
+
 #Abrimos el fichero
-fNiv = open('niveles.txt', 'r')
-# Mostramos por pantalla lo que leemos desde el fichero
-print ('>>> Lectura de una línea del fichero')
-numNiv = fNiv.readline()
+try:
+    fNiv = open('niveles.txt', 'r')
+    # Mostramos por pantalla lo que leemos desde el fichero
+    print ('>>> Lectura de una línea del fichero')
+    dataNiv=[]
+    i=0
+    for linea in fNiv:
+        dataNiv.append(linea)
+    print dataNiv
+except fNiv:
+    print("No existe fichero de datos del nivel")
+    exit(0)
+
+
 # Cerramos el fichero.
 fNiv.close()
-aaaaaa
+fRec = open('record.txt', 'r+')
+nivAct=0
+for j in fRec:
+    nivAct=nivAct+1
+
+eleccion = input(("Elija un nivel entre 1 - %d para comenzar:") % (nivAct + 1))
+
+while(eleccion < 1 or eleccion > nivAct + 1):
+
+    eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
+                       "%d para comenzar:") % (nivAct + 1))
+
+print ("salimoh")
+
+fRec.close()
+    #numNiv=dataNiv[0]
