@@ -1,35 +1,56 @@
 # -*- coding: utf -8 -*-
-
 #Abrimos el fichero
 try:
     fNiv = open('niveles.txt', 'r')
     # Mostramos por pantalla lo que leemos desde el fichero
     print ('>>> Lectura de una línea del fichero')
     dataNiv=[]
-    i=0
+
     for linea in fNiv:
         dataNiv.append(linea)
     print dataNiv
-except fNiv:
+except IOError:
     print("No existe fichero de datos del nivel")
     exit(0)
 
 
 # Cerramos el fichero.
 fNiv.close()
-fRec = open('record.txt', 'r+')
+try:
+    fRec = open('records.txt', 'r+')
+except IOError:
+    fRec = open('records.txt', 'w+')
 nivAct=0
 for j in fRec:
     nivAct=nivAct+1
 
+
 eleccion = input(("Elija un nivel entre 1 - %d para comenzar:") % (nivAct + 1))
-
-while(eleccion < 1 or eleccion > nivAct + 1):
-
-    eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
-                       "%d para comenzar:") % (nivAct + 1))
-
-print ("salimoh")
-
+while eleccion<1 or eleccion>nivAct+1:
+        eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
+                          " %d para comenzar:") % (nivAct + 1))
 fRec.close()
-    #numNiv=dataNiv[0]
+dataAct=[]
+k=0
+while eleccion>0:
+   k=k+1
+   eleccion = eleccion - 1
+
+   if eleccion>0:
+       desplaza = dataNiv[k]
+       k=k+int(desplaza)
+
+numCoche = int(dataNiv[k])
+mJuego=[6][6]
+for i in numCoche:
+    k=k+1
+    orientacion=dataNiv[k][0]
+    col = int(dataNiv[k][1])
+    fil = int(dataNiv[k][2])
+    long = int(dataNiv[k][3])
+    if orientacion == 'H':
+        mJuego[fil][col]='A'
+        mJuego[fil][col+long]='a'
+    else:
+        mJuego[fil][col] = 'A'
+        mJuego[fil+long][col] = 'a'
