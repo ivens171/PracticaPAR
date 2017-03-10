@@ -1,56 +1,89 @@
 # -*- coding: utf -8 -*-
-#Abrimos el fichero
+# Abrimos el fichero
+
 try:
     fNiv = open('niveles.txt', 'r')
     # Mostramos por pantalla lo que leemos desde el fichero
     print ('>>> Lectura de una línea del fichero')
-    dataNiv=[]
+    dataNiv = []
 
     for linea in fNiv:
         dataNiv.append(linea)
     print dataNiv
+
 except IOError:
     print("No existe fichero de datos del nivel")
     exit(0)
 
-
 # Cerramos el fichero.
+
 fNiv.close()
 try:
     fRec = open('records.txt', 'r+')
+
 except IOError:
     fRec = open('records.txt', 'w+')
-nivAct=0
-for j in fRec:
-    nivAct=nivAct+1
 
+nivAct = 0
+
+for j in fRec:
+    nivAct = nivAct + 1
 
 eleccion = input(("Elija un nivel entre 1 - %d para comenzar:") % (nivAct + 1))
-while eleccion<1 or eleccion>nivAct+1:
-        eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
-                          " %d para comenzar:") % (nivAct + 1))
-fRec.close()
-dataAct=[]
-k=0
-while eleccion>0:
-   k=k+1
-   eleccion = eleccion - 1
+while eleccion < 1 or eleccion > nivAct + 1:
+    eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
+                      " %d para comenzar:") % (nivAct + 1))
 
-   if eleccion>0:
-       desplaza = dataNiv[k]
-       k=k+int(desplaza)
+fRec.close()
+dataAct = []
+k = 0
+
+while eleccion > 0:
+    k = k + 1
+    eleccion = eleccion - 1
+
+    if eleccion > 0:
+        desplaza = dataNiv[k]
+        k = k + int(desplaza)
 
 numCoche = int(dataNiv[k])
-mJuego=[6][6]
-for i in numCoche:
-    k=k+1
-    orientacion=dataNiv[k][0]
-    col = int(dataNiv[k][1])
-    fil = int(dataNiv[k][2])
+mJuego = [[48 for x in range(6)] for y in range(6)]
+x = 0
+y = 0
+for i in range(numCoche):
+    z = 0
+    k = k + 1
+    orientacion = dataNiv[k][0]
+    col = int(dataNiv[k][1]) - 1
+    fil = int(dataNiv[k][2]) - 1
     long = int(dataNiv[k][3])
+
     if orientacion == 'H':
-        mJuego[fil][col]='A'
-        mJuego[fil][col+long]='a'
+
+        mJuego[col][fil] = 65 + i
+        z = 0
+
+        for z in xrange(long - 3):
+            mJuego[col + z][fil] = 49
+
+        mJuego[col + long - 1][fil] = 97 + i
+
     else:
-        mJuego[fil][col] = 'A'
-        mJuego[fil+long][col] = 'a'
+
+        mJuego[col][fil] = 65 + i
+        z = 0
+
+        for z in xrange(long - 3):
+            mJuego[col][fil + z] = 49
+
+        mJuego[col][fil + long - 1] = 97 + i
+
+
+
+
+for y in xrange(6):
+    print u'\u2502',  # │
+    for x in xrange(6):
+
+        print "%c" % (mJuego[x][y]),
+    print u'\u2502' # │
