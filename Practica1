@@ -47,7 +47,7 @@ while eleccion > 0:
         k = k + int(desplaza)
 
 numCoche = int(dataNiv[k])
-mJuego = [[48 for x in range(6)] for y in range(6)]
+mJuego = [[[48 for w in range(3)] for x in range(6)] for y in range(6)]
 x = 0
 y = 0
 for i in range(numCoche):
@@ -60,30 +60,85 @@ for i in range(numCoche):
 
     if orientacion == 'H':
 
-        mJuego[col][fil] = 65 + i
+        mJuego[col][fil] = [65 + i, 72, long]
         z = 0
 
         for z in xrange(long - 3):
             mJuego[col + z][fil] = 49
 
-        mJuego[col + long - 1][fil] = 97 + i
+        mJuego[col + long - 1][fil] = [97 + i, 72, long]
 
     else:
 
-        mJuego[col][fil] = 65 + i
+        mJuego[col][fil] = [65 + i, 86, long]
         z = 0
 
         for z in xrange(long - 3):
             mJuego[col][fil + z] = 49
 
-        mJuego[col][fil + long - 1] = 97 + i
+        mJuego[col][fil + long - 1] = [97 + i, 86, long]
 
+BS = 0
+BI = 0
+BD = 0
+BIn = 0
+j = 0
+print  u'\u250C',  # ┌
 
+for BS in xrange(6):
+    print u'\u252C',  # ┬
+    print u'\u2500', u'\u2500', u'\u2500', u'\u2500',  # ─
+print u'\u2510'  # ┐
 
+for y in xrange(6):
+    print u'\u2502',  # │
+    for BI in xrange(2):
+        if BI == 0:
+            for x in xrange(6):
+                #long=mJuego[x][y][2]
+                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] or mJuego[x][y][0] >= (65 + i)):
+                    print u'\u250C',  # ┌
+                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
+                    for j in xrange(long - 1):
+                        print u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500',
+                    print u'\u2500', u'\u2500', u'\u2500', u'\u2510'  # ┐
+
+                elif (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] >= (97 + i)):
+                    print u'\u250C',  # ┌
+                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
+
+                else:
+                    print "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32),
+        if BI == 1:
+            for x in xrange(6):
+                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] >= (65 + i)):
+                    print u'\u2502'  # │
+                    print "%c" % (mJuego[x][y][0]),
+                    for j in xrange(long):
+                        print "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32),
+                    print "%c" % (mJuego[x][y][0]), u'\u2502'  # │ ,
+
+                if (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] >= (97 + i)):
+                    print u'\u2502',  # │
+                    print "%c" % (32), "%c" % (mJuego[x][y][0]), "%c" % (32),
+                    print u'\u2502',  # │
+
+        if BI == 2:
+            for x in xrange(6):
+                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] >= (65 + i)):
+                    u'\u2514'  # └
+                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
+                    for j in xrange(long - 1):
+                        print u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500',
+                    print u'\u2500', u'\u2500', u'\u2500', u'\u2518',  # ┘
+
+                if (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] >= (97 + i)):
+                    u'\u2514'  # └
+                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
+        print u'\u2502',  # │
 
 for y in xrange(6):
     print u'\u2502',  # │
     for x in xrange(6):
-
-        print "%c" % (mJuego[x][y]),
-    print u'\u2502' # │
+        print "%c" % (mJuego[x][y][0]),
+    print u'\u2502'  # │
