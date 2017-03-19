@@ -1,164 +1,388 @@
 # -*- coding: utf -8 -*-
 # Abrimos el fichero
+COE = u'\u2500'  # ─
+CNS = u'\u2502'  # │
+CES = u'\u250C'  # ┌
+CSO = u'\u2510'  # ┐
+CNE = u'\u2514'  # └
+CON = u'\u2518'  # ┘
+COES = u'\u252C'  # ┬
+CNES = u'\u251C'  # ├
+CONS = u'\u2524'  # ┤
+CONE = u'\u2534'  # ┴
+CSOM = u'\u2593'  # ▒
+ESP = " "
 
-try:
-    fNiv = open('niveles.txt', 'r')
-    # Mostramos por pantalla lo que leemos desde el fichero
-    print ('>>> Lectura de una línea del fichero')
-    dataNiv = []
 
-    for linea in fNiv:
-        dataNiv.append(linea)
-    print dataNiv
+def cargaArchivo():
+    try:
+        fNiv = open('niveles.txt', 'r')
+        # Mostramos por pantalla lo que leemos desde el fichero
+        print ('>>> Lectura de una línea del fichero')
+        dataNiv = []
 
-except IOError:
-    print("No existe fichero de datos del nivel")
-    exit(0)
+        for linea in fNiv:
+            dataNiv.append(linea)
 
-# Cerramos el fichero.
 
-fNiv.close()
-try:
-    fRec = open('records.txt', 'r+')
+    except IOError:
+        print("No existe fichero de datos del nivel")
+        exit(0)
 
-except IOError:
-    fRec = open('records.txt', 'w+')
+    # Cerramos el fichero.
 
-nivAct = 0
+    fNiv.close()
+    return dataNiv
 
-for j in fRec:
-    nivAct = nivAct + 1
 
-eleccion = input(("Elija un nivel entre 1 - %d para comenzar:") % (nivAct + 1))
-while eleccion < 1 or eleccion > nivAct + 1:
-    eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
-                      " %d para comenzar:") % (nivAct + 1))
+def eligeNivel(dataNiv):
+    try:
+        fRec = open('records.txt', 'r+')
 
-fRec.close()
-dataAct = []
-k = 0
+    except IOError:
+        fRec = open('records.txt', 'w+')
+        fRec.write("0")
 
-while eleccion > 0:
-    k = k + 1
-    eleccion = eleccion - 1
+    nivAct = 0
 
-    if eleccion > 0:
-        desplaza = dataNiv[k]
-        k = k + int(desplaza)
+    for j in fRec:
+        nivAct = nivAct + 1
 
-numCoche = int(dataNiv[k])
-mJuego = [[[48 for w in range(3)] for x in range(6)] for y in range(6)]
-x = 0
-y = 0
-for i in range(numCoche):
-    z = 0
-    k = k + 1
-    orientacion = dataNiv[k][0]
-    col = int(dataNiv[k][1]) - 1
-    fil = int(dataNiv[k][2]) - 1
-    long = int(dataNiv[k][3])
+    eleccion = input(("Elija un nivel entre 1 - %d para comenzar:") % (nivAct + 1))
 
-    if orientacion == 'H':
+    while eleccion < 1 or eleccion > nivAct + 1:
+        eleccion = input(("El nivel escogido no está desbloqueado, elija un nivel entre 1 -"
+                          " %d para comenzar:") % (nivAct + 1))
 
-        mJuego[col][fil] = [65 + i, 72, long]
+    print ("NIVEL %d -RECORD %s movimientos") % ((nivAct), (fRec.readline(nivAct)))
+    fRec.close()
+
+    posicion = 0
+
+    while eleccion > 0:
+        posicion = posicion + 1
+        eleccion = eleccion - 1
+
+        if eleccion > 0:
+            desplaza = dataNiv[posicion]
+            posicion = posicion + int(desplaza)
+    return posicion
+
+
+def creaMatriz(posicion):
+    numCoche = int(dataNiv[posicion])
+    mJuego = [[[ord('0') for w in range(3)] for x in range(8)] for y in range(8)]
+    x = 0
+    y = 0
+    for i in range(numCoche):
         z = 0
+        posicion = posicion + 1
+        orientacion = dataNiv[posicion][0]
+        col = int(dataNiv[posicion][1])
+        fil = int(dataNiv[posicion][2])
+        long = int(dataNiv[posicion][3])
 
-        for z in xrange(long - 3):
-            mJuego[col + z][fil] = 49
+        if orientacion == 'H':
 
-        mJuego[col + long - 1][fil] = [97 + i, 72, long]
+            mJuego[col][fil] = [ord('A') + i, ord('H'), long]
 
+            for z in xrange(long - 2):
+                mJuego[col + z + 1][fil] = [ord('1'), ord('H'), long]
+
+            mJuego[col + long - 1][fil] = [ord('a') + i, ord('H'), long]
+
+        else:
+            mJuego[col][fil] = [ord('A') + i, ord('V'), long]
+            for z in xrange(long - 2):
+                mJuego[col][fil + z + 1] = [ord('1'), ord('V'), long]
+
+            mJuego[col][fil + long - 1] = [ord('a') + i, ord('V'), long]
+
+    for y in range(8):
+        mJuego[0][y][0] = 1
+        mJuego[7][y][0] = 1
+    for x in range(8):
+        mJuego[x][0][0] = 1
+        mJuego[x][7][0] = 1
+
+    return mJuego
+
+
+def imprimeTablero(mJuego):
+    bordeAlto = ''
+
+    for i in range(6):
+        bordeAlto = bordeAlto + COES + COE * 4
+    print CES + bordeAlto + CSO
+
+    for y in range(6):
+        lineaSup = ''
+        lineaMed = ''
+        lineaInf = ''
+
+        for x in range(6):
+
+            if ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaSup = lineaSup + CES + COE * 4
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaSup = lineaSup + COE * 4 + CSO
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaSup = lineaSup + CES + COE * 3 + CSO
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaSup = lineaSup + CNS + ESP * 3 + CNS
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaSup = lineaSup + COE * 5
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaSup = lineaSup + CNS + ESP * 3 + CNS
+
+            else:
+                lineaSup = lineaSup + ESP * 5
+        if y == 2:
+            print CNES + lineaSup + CSOM
+        else:
+            print CNES + lineaSup + CONS
+
+        for x in xrange(6):
+
+            if ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaMed = lineaMed + CNS + "%c" % (mJuego[x + 1][y + 1][0]) + ESP * 3
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaMed = lineaMed + ESP * 3 + "%c" % (mJuego[x + 1][y + 1][0]) + CNS
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaMed = lineaMed + CNS + ESP + "%c" % (mJuego[x + 1][y + 1][0]) + ESP + CNS
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaMed = lineaMed + CNS + ESP + "%c" % (mJuego[x + 1][y + 1][0]) + ESP + CNS
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaMed = lineaMed + ESP * 5
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaMed = lineaMed + CNS + ESP * 3 + CNS
+
+            else:
+                lineaMed = lineaMed + ESP * 5
+
+        if y == 2:
+            print CNS + lineaMed + CSOM
+        else:
+            print CNS + lineaMed + CNS
+
+        for x in xrange(6):
+
+            if ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaInf = lineaInf + CNE + COE * 4
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaInf = lineaInf + COE * 4 + CON
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('A') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('Z'))))):
+                lineaInf = lineaInf + CNS + ESP * 3 + CNS
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (
+                            ord('a') <= mJuego[x + 1][y + 1][0] and (mJuego[x + 1][y + 1][0] <= (ord('z'))))):
+                lineaInf = lineaInf + CNE + COE * 3 + CON
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('H')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaInf = lineaInf + COE * 5
+
+            elif ((mJuego[x + 1][y + 1][1] == ord('V')) and (mJuego[x + 1][y + 1][0] == ord('1'))):
+                lineaInf = lineaInf + CNS + ESP * 3 + CNS
+
+            else:
+                lineaInf = lineaInf + ESP * 5
+
+        if y == 2:
+            print CNS + lineaInf + CSOM
+        else:
+            print CNS + lineaInf + CNS
+
+    bordeBajo = ''
+    for BS in xrange(6):
+        bordeBajo = bordeBajo + CONE + COE * 4
+    print CNE + bordeBajo + CON
+
+    if (mJuego[7][3][0]==0):
+        victoria=1
     else:
-
-        mJuego[col][fil] = [65 + i, 86, long]
-        z = 0
-
-        for z in xrange(long - 3):
-            mJuego[col][fil + z] = 49
-
-        mJuego[col][fil + long - 1] = [97 + i, 86, long]
-
-BS = 0
-BI = 0
-BD = 0
-BIn = 0
-j = 0
-print  u'\u250C',  # ┌
-
-for BS in xrange(6):
-    print u'\u252C',  # ┬
-    print u'\u2500', u'\u2500', u'\u2500', u'\u2500',  # ─
-print u'\u2510'  # ┐
-
-for y in xrange(6):
-    print u'\u2502',  # │
-    for BI in xrange(2):
-        if BI == 0:
-            for x in xrange(6):
-                long=mJuego[x][y][2]
-                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] or mJuego[x][y][0] <= (65 + i))and\
-                        (mJuego[x][y][0]<=97 ):
-                    print u'\u250C',  # ┌
-                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
-                    for j in xrange(long -1):
-                        print u'\u2500', u'\u2500', u'\u2500',u'\u2500',
-                    print u'\u2500', u'\u2500', u'\u2510',  # ┐
-                    print " ",
-
-                elif (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] or mJuego[x][y][0] <= (97 + i)):
-                    print u'\u250C',  # ┌
-                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
-                    print u'\u2510', # ┐
-
-
-                else:
-                    print "   ",
-                if(x==5):
-                    print  "        ",   u'\u2524' # ┤
-
-
-        if BI == 1:
-            for x in xrange(6):
-                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] or mJuego[x][y][0] <= (65 + i)) and \
-                        (mJuego[x][y][0] <= 97):
-                    print u'\u2502'  # │
-                    print "%c" % (mJuego[x][y][0]),
-                    for j in xrange(long):
-                        print "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32), "%c" % (32),
-                    print "%c" % (mJuego[x][y][0]), u'\u2502',  # │
-
-
-                elif (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] or mJuego[x][y][0] <= (97 + i)):
-                    print u'\u2502',  # │
-                    print "%c" % (32), "%c" % (mJuego[x][y][0]), "%c" % (32),
-                    print u'\u2502',  # │
-
-        if BI == 2:
-            for x in xrange(6):
-                if (mJuego[x][y][1] == 72) and (65 <= mJuego[x][y][0] >= (65 + i)):
-                    u'\u2514'  # └
-                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
-                    for j in xrange(long - 1):
-                        print u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500', u'\u2500',
-                    print u'\u2500', u'\u2500', u'\u2500', u'\u2518',  # ┘
-
-                elif (mJuego[x][y][1] == 86) and (97 <= mJuego[x][y][0] >= (97 + i)):
-                    u'\u2514'  # └
-                    print u'\u2500', u'\u2500', u'\u2500',  # ─  # ─   # ─
+        victoria=0
+    return victoria
 
 
 
-for y in xrange(6):
-    print u'\u2502',  # │
-    for x in xrange(6):
-        print "%c" % (mJuego[x][y][0]),
-    print u'\u2502'  # │
+def obtenNivel(dataNiv):
+    try:
+        fRec = open('records.txt', 'r+')
+
+    except IOError:
+        fRec = open('records.txt', 'w+')
+        fRec.write("0")
+
+    nivAct = 0
+
+    for j in fRec:
+        nivAct = nivAct + 1
+    fRec.close()
+    return nivAct
+
+
+def guardaRecord(movimientos, nivAct):
+    fRec = open('records.txt', 'w+')
+    copiaRecord=[]
+
+    for j in fRec:
+
+        copiaRecord.append(j)
+
+    if(copiaRecord[nivAct]>movimientos):
+
+        copiaRecord[nivAct] = movimientos
+        fRec.write(copiaRecord)
+
+    fRec.close()
 
 
 
-print  u'\u250C',  # ┌
+def juegaPartida(mJuego, dataNiv):
 
-for BS in xrange(6):
-    print u'\u252C',  # ┬
-    print u'\u2500', u'\u2500', u'\u2500', u'\u2500',  # ─
-print u'\u2510'  # ┐
+    movimientos = raw_input("Movimientos = ")
+    prueba = len(movimientos) + len(movimientos)
+    nivAct = obtenNivel(dataNiv)
+    verticalMinEncontrado = 0
+
+    for i in movimientos:
+
+        if ord('A') <= ord(i) <= (ord('A') + nivAct):
+
+            for y in xrange(6):
+
+                for x in xrange(6):
+
+                    if (ord(i) == mJuego[x + 1][y + 1][0]):
+
+                        if (mJuego[x + 1][y + 1][1] == ord('H')):
+                            longHorMayAux = mJuego[x + 1][y + 1][2] - 1
+                            if mJuego[x + 1][y + 1][2] - 1 > 1:
+                                longHorMayAux -= 1
+                            for longHorMay in xrange((mJuego[x + 1][y + 1][2])):
+
+                                if ((mJuego[x + 1 + longHorMay - 1][y + 1][0] == ord('0'))):
+
+                                    mJuego[x + 1 - longHorMayAux][y + 1][0] = mJuego[x + 1 + longHorMay][y + 1][0]
+                                    mJuego[x + 1 - longHorMay][y + 1][1] = mJuego[x + 1 + longHorMay][y + 1][1]
+                                    mJuego[x + 1 - longHorMay][y + 1][2] = mJuego[x + 1 + longHorMay][y + 1][2]
+                                    mJuego[x + 1 + longHorMay][y + 1][0] = ord('0')
+                                else:
+                                    print("Movimiento %c imposible por bloqueo") % mJuego[x + 1][y + 1][0]
+                                    break;
+                                longHorMayAux -= 1
+                        else:
+
+                            longVerMayAux = mJuego[x + 1][y + 1][2] - 1
+                            if mJuego[x + 1][y + 1][2] - 1 > 1:
+                                longVerMayAux -= 1
+                            for longVerMay in xrange((mJuego[x + 1][y + 1][2])):
+
+                                if ((mJuego[x + 1][y + 1 + longVerMay - 1][0] == ord('0'))):
+
+                                    mJuego[x + 1][y + 1 - longVerMayAux][0] = mJuego[x + 1][y + 1 + longVerMay][0]
+                                    mJuego[x + 1][y + 1 - longVerMay][1] = mJuego[x + 1][y + 1 + longVerMay][1]
+                                    mJuego[x + 1][y + 1 - longVerMay][2] = mJuego[x + 1][y + 1 + longVerMay][2]
+                                    mJuego[x + 1][y + 1 + longVerMay][0] = ord('0')
+                                else:
+                                    print("Movimiento %c imposible por bloqueo") % mJuego[x + 1][y + 1][0]
+                                    break;
+                                longVerMayAux -= 1
+
+        else:
+
+            for y in xrange(6):
+
+                for x in xrange(6):
+
+                    if (ord(i) == mJuego[x + 1][y + 1][0]):
+
+                        if (mJuego[x + 1][y + 1][1] == ord('H')):
+
+                            longHorMinAux = mJuego[x + 1][y + 1][2] - 1
+                            if mJuego[x + 1][y + 1][2] - 1 > 1:
+                                longHorMinAux -= 1
+                            for longHorMin in xrange((mJuego[x + 1][y + 1][2])):
+
+                                if ((mJuego[x + 1 - longHorMin + 1][y + 1][0] == ord('0'))):
+
+                                    mJuego[x + 1 + longHorMinAux][y + 1][0] = mJuego[x + 1 - longHorMin][y + 1][0]
+                                    mJuego[x + 1 + longHorMin][y + 1][1] = mJuego[x + 1 - longHorMin][y + 1][1]
+                                    mJuego[x + 1 + longHorMin][y + 1][2] = mJuego[x + 1 - longHorMin][y + 1][2]
+                                    mJuego[x + 1 - longHorMin][y + 1][0] = ord('0')
+
+
+                                elif ((mJuego[x + 1 - longHorMin + 1][y + 1][0] == 1)
+                                      and (mJuego[x + 1][y + 1][0] == ord('a'))):
+                                    mJuego[x + 1 - longHorMin + 1][y + 1][0]=0
+                                    print ("ENHORABUENA, HA COMPLETADO EL NIVEL!")
+                                    print ("Movimientos: %d") % (prueba),
+                                    guardaRecord(prueba, nivAct)
+
+                                else:
+                                    print("Movimiento %c imposible por bloqueo") % mJuego[x + 1][y + 1][0]
+                                    break;
+                                longHorMinAux -= 1
+                            break;
+
+                        else:
+
+                            longVerMinAux = mJuego[x + 1][y + 1][2] - 1
+                            if mJuego[x + 1][y + 1][2] - 1 > 1:
+                                longVerMinAux -= 1
+                            for longVerMin in xrange((mJuego[x + 1][y + 1][2])):
+
+                                if ((mJuego[x + 1][y + 1 - longVerMin + 1][0] == ord('0'))):
+
+                                    mJuego[x + 1][y + 1 + longVerMinAux][0] = mJuego[x + 1][y + 1 - longVerMin][0]
+                                    mJuego[x + 1][y + 1 + longVerMin][1] = mJuego[x + 1][y + 1 - longVerMin][1]
+                                    mJuego[x + 1][y + 1 + longVerMin][2] = mJuego[x + 1][y + 1 - longVerMin][2]
+                                    mJuego[x + 1][y + 1 - longVerMin][0] = ord('0')
+                                else:
+                                    print("Movimiento %c imposible por bloqueo") % mJuego[x + 1][y + 1][0]
+                                    break
+                                longVerMinAux -= 1
+                            verticalMinEncontrado = 1
+                if verticalMinEncontrado == 1:
+                    break
+
+
+    return mJuego
+
+
+dataNiv = cargaArchivo()
+sigueJuego='S'
+while sigueJuego=='S':
+    posicion = eligeNivel(dataNiv)
+    mJuego = creaMatriz(posicion)
+    victoria=imprimeTablero(mJuego)
+    victoria = 0
+    while victoria ==0:
+        mJuego = juegaPartida(mJuego, dataNiv)
+        victoria=imprimeTablero(mJuego)
+    sigueJuego=raw_input("Desea pasar al siguiente nivel? [S/N]")
+
+
